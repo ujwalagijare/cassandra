@@ -1,0 +1,77 @@
+exam@exam-ThinkCentre-M57e:~$ cassandra/bin/cqlsh
+Connected to Test Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 2.1.11 | CQL spec 3.2.1 | Native protocol v3]
+Use HELP for help.
+cqlsh> create keyspace mykeyspace with replication={'class':'simplestrategy','replication_factor':1};
+ConfigurationException: <ErrorMessage code=2300 [Query invalid because of configuration issue] message="Unable to find replication strategy class 'org.apache.cassandra.locator.simplestrategy'">
+cqlsh> create keyspace mykeyspace with replication={'class':'SimpleStrategy','replication_factor':1};
+cqlsh> use mykeyspace
+   ... create table student(roll int primary key, fname text, lname text);
+Improper use command.
+cqlsh> use mykeyspace;
+cqlsh:mykeyspace> create table student(roll int primary key, fname text, lname text);
+cqlsh:mykeyspace> insert into student(roll, fname, lname) values(1,'aaa','sss');
+cqlsh:mykeyspace> insert into student(roll, fname, lname) values(2,'bbb','zzz'); 
+cqlsh:mykeyspace> insert into student(roll, fname, lname) values(3,'kkk','hhh'); 
+cqlsh:mykeyspace> select *from student;
+
+ roll | fname | lname
+------+-------+-------
+    1 |   aaa |   sss
+    2 |   bbb |   zzz
+    3 |   kkk |   hhh
+
+(3 rows)
+cqlsh:mykeyspace> create index on student(lname);
+cqlsh:mykeyspace> select *from student where lname='hhh';
+
+ roll | fname | lname
+------+-------+-------
+    3 |   kkk |   hhh
+
+(1 rows)
+cqlsh:mykeyspace> 
+
+
+exam@exam-ThinkCentre-M57e:~$ cassandra/bin/cqlsh
+Connected to Test Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 2.1.11 | CQL spec 3.2.1 | Native protocol v3]
+Use HELP for help.
+cqlsh> use mykeyspace;
+cqlsh:mykeyspace> select *from student;
+
+ roll | fname | lname
+------+-------+-------
+    1 |   aaa |   sss
+    2 |   bbb |   zzz
+    3 |   kkk |   hhh
+
+(3 rows)
+cqlsh:mykeyspace> select *from student where fname='aaa';
+InvalidRequest: code=2200 [Invalid query] message="No secondary indexes on the restricted columns support the provided operators: "
+cqlsh:mykeyspace> create index on student (fname);
+cqlsh:mykeyspace> select *from student where fname='aaa';
+
+ roll | fname | lname
+------+-------+-------
+    1 |   aaa |   sss
+
+(1 rows)
+cqlsh:mykeyspace> select *from student where roll=1;
+
+ roll | fname | lname
+------+-------+-------
+    1 |   aaa |   sss
+
+(1 rows)
+cqlsh:mykeyspace> create index on student (lname);
+InvalidRequest: code=2200 [Invalid query] message="Index already exists"
+cqlsh:mykeyspace> select *from student where lname='hhh';
+
+ roll | fname | lname
+------+-------+-------
+    3 |   kkk |   hhh
+
+(1 rows)
+cqlsh:mykeyspace> 
+
