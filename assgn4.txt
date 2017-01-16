@@ -1,0 +1,123 @@
+cqlsh:student_data> insert into stud (id,emails,name) values('a', 'aaa',{'a@fff.com','aa.gmail.com'});
+cqlsh:student_data> select * from stud;
+ id | emails                        | name
+----+-------------------------------+------
+  a | {'a@fff.com', 'aa.gmail.com'} |  aaa
+
+(1 rows)
+cqlsh:student_data> update stud set emails = emails + {'abc@gmail.com'} where user_id ='a';
+cqlsh:student_data> select * from stud;
+ id | emails                                         | name
+----+------------------------------------------------+------
+  a | {'a@fff.com', 'aa.gmail.com', 'abc@gmail.com'} |  aaa
+
+(1 rows)
+cqlsh:student_data> select id,emails from stud;
+ id | emails
+----+------------------------------------------------
+  a | {'a@fff.com', 'aa.gmail.com', 'abc@gmail.com'}
+
+(1 rows)
+cqlsh:student_data>update users set emails = emails - {'abc@gmail.com'} whereid ='a';
+cqlsh:student_data> select * from stud;
+
+ id | emails                       | name
+----+------------------------------+------
+  a | {'a@fff.com', 'aa.gmail.com' |  aaa
+
+(1 rows)
+cqlsh:student_data> select id,emails from stud;
+ id | emails
+----+------------------------------------------------
+  a | {'a@fff.com', 'aa.gmail.com', 'abc@gmail.com'}
+
+(1 rows)
+
+cqlsh:student_data> delete emails from stud where id = 'a';
+cqlsh:student_data> select id,emails from stud;
+
+ id | emails
+----+--------
+  a |   null
+
+(1 rows)
+
+
+cqlsh:student_data> alter table stud add contact map<text, text>;
+cqlsh:student_data>update stud set contact = { 'contact1' : '951326474', 'contact2' : '6655656556' } where user_id = 'a';
+cqlsh:student_data> select id,contact from stud where id = 'a';
+
+ id | contact
+----+-----------------------------------------------------
+  a | {'contact1': '951326474', 'contact2': '6655656556'}
+
+(1 rows)
+cqlsh:student_data> update stud set contact['contact2']='5362147898' where id='a';
+cqlsh:student_data> select * from stud;
+
+ id | contact                                             | emails | name
+----+-----------------------------------------------------+--------+------
+  a | {'contact1': '951326474', 'contact2': '5362147898'} |   null |  aaa
+
+(1 rows)
+cqlsh:student_data> insert into stud(id,contact)values('a',{'contact1':'653214797','contact2':'7894561230'});
+cqlsh:student_data> select * from stud;
+
+ id | contact                                             | emails | name
+----+-----------------------------------------------------+--------+------
+  a | {'contact1': '653214797', 'contact2': '7894561230'} |   null |  aaa
+
+(1 rows)
+cqlsh:student_data> update stud set contact = contact +{'contact3':'1234567890'}where id='a';
+cqlsh:student_data> select * from stud;
+
+ id | contact                                                                       | emails | name
+----+-------------------------------------------------------------------------------+--------+------
+  a | {'contact1': '653214797', 'contact2': '7894561230', 'contact3': '1234567890'} |   null |  aaa
+
+(1 rows)
+cqlsh:student_data> update stud set contact = contact -{'contact3'}where id='a';
+cqlsh:student_data> select * from stud;
+
+ id | contact                                             | emails | name
+----+-----------------------------------------------------+--------+------
+  a | {'contact1': '653214797', 'contact2': '7894561230'} |   null |  aaa
+
+(1 rows)
+cqlsh:student_data> create index st_key on emp(state);
+cqlsh:student_data> select * from emp;
+
+ id | bdate     | name | state
+----+-----------+------+-------
+  1 | 1july1996 |   aa |    mh
+  2 |  1may1995 |   bb |   goa
+
+(2 rows)
+cqlsh:student_data> select * from emp where state='mh' and byear > 1989 allow filtering;
+
+ id | byear | name | state
+----+-------+------+-------
+  1 |  1995 |   aa |    mh
+
+(1 rows)
+cqlsh:student_data> select * from emp where state='mh' and byear > 1989 allow filtering;
+
+ id | byear | name | state
+----+-------+------+-------
+  1 |  1995 |   aa |    mh
+
+(1 rows)
+cqlsh:student_data> insert into emp(id,byear,name,state) values (5,1997,'ee','mh')if not exists;
+
+ [applied]
+-----------
+      True
+      
+cqlsh:student_data> update emp set state='na' where id =1 if name ='aa';
+
+ [applied]
+-----------
+      True
+
+
+

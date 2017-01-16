@@ -1,0 +1,1118 @@
+0.list of tables:
+
+var params = {
+   
+};
+dynamodb.listTables(params, function(err, data) {
+    if (err) console.log(err, err.stack); // an error occurred
+    else     console.log(data);           // successful response
+});
+
+op:
+
+=> 
+{"TableNames":["student"]}
+   
+------------------------------------------------------------------------------------------------------------------------
+1.creating table:
+
+var params = {
+    TableName: 'student',
+    KeySchema: [ 
+        {
+            AttributeName: 'rollno',
+            KeyType: 'HASH',
+        },
+        { 
+            AttributeName: 'name',
+            KeyType: 'RANGE',
+        }
+    ],
+    AttributeDefinitions: [ 
+       
+        {
+            AttributeName: 'rollno',
+            AttributeType: 'N', 
+        },
+        {
+            AttributeName: 'name',
+            AttributeType: 'S', 
+        },
+    ],
+    ProvisionedThroughput: { // required provisioned throughput for the table
+        ReadCapacityUnits: 1, 
+        WriteCapacityUnits: 1, 
+    },
+};
+dynamodb.createTable(params, function(err, data) {
+    if (err) print(err); // an error occurred
+    else print(data); // successful response
+});
+
+op:
+=> 
+{
+  "TableDescription": {
+    "AttributeDefinitions": [
+      {
+        "AttributeName": "rollno",
+        "AttributeType": "N"
+      },
+      {
+        "AttributeName": "name",
+        "AttributeType": "S"
+      }
+    ],
+    "TableName": "student",
+    "KeySchema": [
+      {
+        "AttributeName": "rollno",
+        "KeyType": "HASH"
+      },
+      {
+        "AttributeName": "name",
+        "KeyType": "RANGE"
+      }
+    ],
+    "TableStatus": "ACTIVE",
+    "CreationDateTime": "2017-01-05T03:53:33.997Z",
+    "ProvisionedThroughput": {
+      "LastIncreaseDateTime": "1970-01-01T00:00:00.000Z",
+      "LastDecreaseDateTime": "1970-01-01T00:00:00.000Z",
+      "NumberOfDecreasesToday": 0,
+      "ReadCapacityUnits": 1,
+      "WriteCapacityUnits": 1
+    },
+    "TableSizeBytes": 0,
+    "ItemCount": 0,
+    "TableArn": "arn:aws:dynamodb:ddblocal:000000000000:table/student"
+  }
+}
+   
+--------------------------------------------------------------------------------------------------------------------------------------
+2. inserting item:
+
+var params = {
+TableName: "student",
+Item: {
+"rollno":1,
+"name":"abc",
+"age":26,
+"dob": "1-7-1995",
+"address": {
+"home": [
+"xyz street",
+"pune city",
+"maharashtra"
+],
+"contact":[1234567890],
+"email":["abc@gmail.com","abc@yahoo.in"],
+"LengthInSeconds": 214
+}
+}
+};
+dynamodb.putItem(params, function(err, data) {
+if (err)
+console.log(JSON.stringify(err, null, 2));
+else
+console.log(JSON.stringify(data, null, 2));
+});
+
+op:
+=> 
+{}
+------------------------------------------------------------------------------------------------------------------------------   
+3. Retriving data:
+
+var params = {
+TableName: "student",
+Key: {
+"rollno": 1,
+"name": "abc"
+}
+};
+dynamodb.getItem(params, function(err, data) {
+if (err)
+console.log(JSON.stringify(err, null, 2));
+else
+console.log(JSON.stringify(data, null, 2));
+});
+
+op:
+
+=> 
+{
+  "Item": {
+    "rollno": 1,
+    "address": {
+      "home": [
+        "xyz street",
+        "pune city",
+        "maharashtra"
+      ],
+      "contact": [
+        1234567890
+      ],
+      "email": [
+        "abc@gmail.com",
+        "abc@yahoo.in"
+      ],
+      "LengthInSeconds": 214
+    },
+    "name": "abc",
+    "age": 26,
+    "dob": "1-7-1995"
+  }
+}
+-------------------------------------------------------------------------------------------------------------------------------------
+4. describe table
+var params = {
+    TableName: 'student',
+};
+dynamodb.describeTable(params, function(err, data) {
+    if (err) print(err); // an error occurred
+    else print(data); // successful response
+});
+
+op:
+=> 
+{
+  "Table": {
+    "AttributeDefinitions": [
+      {
+        "AttributeName": "rollno",
+        "AttributeType": "N"
+      },
+      {
+        "AttributeName": "name",
+        "AttributeType": "S"
+      }
+    ],
+    "TableName": "student",
+    "KeySchema": [
+      {
+        "AttributeName": "rollno",
+        "KeyType": "HASH"
+      },
+      {
+        "AttributeName": "name",
+        "KeyType": "RANGE"
+      }
+    ],
+    "TableStatus": "ACTIVE",
+    "CreationDateTime": "2017-01-05T03:53:33.997Z",
+    "ProvisionedThroughput": {
+      "LastIncreaseDateTime": "1970-01-01T00:00:00.000Z",
+      "LastDecreaseDateTime": "1970-01-01T00:00:00.000Z",
+      "NumberOfDecreasesToday": 0,
+      "ReadCapacityUnits": 1,
+      "WriteCapacityUnits": 1
+    },
+    "TableSizeBytes": 155,
+    "ItemCount": 1,
+    "TableArn": "arn:aws:dynamodb:ddblocal:000000000000:table/student"
+  }
+}
+
+------------------------------------------------------------------------------------------------------------------------------   
+5. inserting data with condition
+var params = {
+TableName: "student",
+Item: {
+"rollno":2,
+"name":"pqr",
+"age":30,
+"dob": "17-5-1989",
+"address": {
+"home": [
+"street no-19",
+"nagpur city",
+"maharashtra"
+],
+"contact":[43536278928],
+"email":["pqr@gmail.com","pqr@yahoo.in","pqr@org.com"],
+"LengthInSeconds": 214
+}
+},
+"ConditionExpression": "attribute_not_exists(rollno)"
+};
+dynamodb.putItem(params, function(err, data) {
+if (err)
+console.log(JSON.stringify(err, null, 2));
+else
+console.log(JSON.stringify(data, null, 2));
+});
+
+op:
+
+=> 
+{}
+-----------------------------------------------------------------------------------------------------------------------------------
+6. inserting bulk of data:
+
+var params = {
+RequestItems: {
+"student":[
+    {
+        PutRequest:{
+            Item: {
+                   "rollno":3,
+                   "name":"aaa",
+                   "age":20,
+                    "dob": "30-8-2000",
+                    "address": {
+                         "home": [
+                        "ccc street",
+                        "pune city",
+                        "maharashtra"
+                        ],
+                        "contact":[9239876540],
+                        "email":["aaa@gmail.com","aaa@yahoo.in"],
+                        "LengthInSeconds": 214
+                        }
+                }
+        }
+    },
+    
+    {
+        PutRequest:{
+            Item: {
+                   "rollno":4,
+                   "name":"bbb",
+                   "age":29,
+                    "dob": "23-2-1992",
+                    "address": {
+                         "home": [
+                        "baker street",
+                        "mumabai city",
+                        "maharashtra"
+                        ],
+                        "contact":[9087654321],
+                        "email":["bbb@gmail.com"],
+                        "LengthInSeconds": 214
+                        }
+                }
+        }
+    }
+    
+   ]
+}
+};
+
+dynamodb.batchWriteItem(params, function (err, data) {
+if (err)
+console.log(JSON.stringify(err, null, 2));
+else
+console.log(JSON.stringify(data, null, 2));
+});
+
+op:
+
+=> 
+{
+  "UnprocessedItems": {}
+}
+   
+------------------------------------------------------------------------------------------------------------------------------
+7.retiving batch of data:
+
+var params = {
+RequestItems: {
+"student": {
+Keys: [
+{
+"rollno": 1,
+"name": "abc"
+},
+{
+"rollno": 2,
+"name": "pqr"
+},
+{
+"rollno": 3,
+"name": "aaa"
+},
+{
+"rollno": 4,
+"name": "bbb"
+}
+],
+}
+}
+};
+dynamodb.batchGetItem(params, function (err, data) {
+if (err)
+console.log(JSON.stringify(err, null, 2));
+else
+console.log(JSON.stringify(data, null, 2));
+});
+
+
+op:
+=> 
+{
+  "Responses": {
+    "student": [
+      {
+        "rollno": 1,
+        "address": {
+          "home": [
+            "xyz street",
+            "pune city",
+            "maharashtra"
+          ],
+          "contact": [
+            1234567890
+          ],
+          "email": [
+            "abc@gmail.com",
+            "abc@yahoo.in"
+          ],
+          "LengthInSeconds": 214
+        },
+        "name": "abc",
+        "age": 26,
+        "dob": "1-7-1995"
+      },
+      {
+        "rollno": 3,
+        "address": {
+          "home": [
+            "ccc street",
+            "pune city",
+            "maharashtra"
+          ],
+          "contact": [
+            9239876540
+          ],
+          "email": [
+            "aaa@gmail.com",
+            "aaa@yahoo.in"
+          ],
+          "LengthInSeconds": 214
+        },
+        "name": "aaa",
+        "age": 20,
+        "dob": "30-8-2000"
+      },
+      {
+        "rollno": 4,
+        "address": {
+          "home": [
+            "baker street",
+            "mumabai city",
+            "maharashtra"
+          ],
+          "contact": [
+            9087654321
+          ],
+          "email": [
+            "bbb@gmail.com"
+          ],
+          "LengthInSeconds": 214
+        },
+        "name": "bbb",
+        "age": 29,
+        "dob": "23-2-1992"
+      },
+      {
+        "rollno": 2,
+        "address": {
+          "home": [
+            "street no-19",
+            "nagpur city",
+            "maharashtra"
+          ],
+          "contact": [
+            43536278928
+          ],
+          "email": [
+            "pqr@gmail.com",
+            "pqr@yahoo.in",
+            "pqr@org.com"
+          ],
+          "LengthInSeconds": 214
+        },
+        "name": "pqr",
+        "age": 30,
+        "dob": "17-5-1989"
+      }
+    ]
+  },
+  "UnprocessedKeys": {}
+}
+
+-------------------------------------------------------------------------------------------------------------------------
+8:Retrieve a Subset of Attributes Using a Projection Expression
+
+var params = {
+TableName: "student",
+Key: {
+    "rollno": 2,
+    "name": "pqr"
+},
+ProjectionExpression: "address"
+};
+dynamodb.getItem(params, function (err, data) {
+if (err)
+console.log(JSON.stringify(err, null, 2));
+else
+console.log(JSON.stringify(data, null, 2));
+});
+
+op:
+
+=> 
+{
+  "Item": {
+    "address": {
+      "home": [
+        "street no-19",
+        "nagpur city",
+        "maharashtra"
+      ],
+      "contact": [
+        43536278928
+      ],
+      "email": [
+        "pqr@gmail.com",
+        "pqr@yahoo.in",
+        "pqr@org.com"
+      ],
+      "LengthInSeconds": 214
+    }
+  }
+}
+
+-----------------------------------------------------------------------------------------------------------------------------
+9:Getting data by modofying name for reserved keywords.
+
+var params = {
+TableName: "student",
+Key: {
+"rollno": 2,
+"name": "pqr"
+},
+ProjectionExpression: "address, #a", //#a is modofied keyword for age.
+ExpressionAttributeNames: {"#a": "age"}
+};
+dynamodb.getItem(params, function (err, data) {
+if (err)
+console.log(JSON.stringify(err, null, 2));
+else
+console.log(JSON.stringify(data, null, 2));
+});
+
+op:
+
+{
+  "Item": {
+    "address": {
+      "home": [
+        "street no-19",
+        "nagpur city",
+        "maharashtra"
+      ],
+      "contact": [
+        43536278928
+      ],
+      "email": [
+        "pqr@gmail.com",
+        "pqr@yahoo.in",
+        "pqr@org.com"
+      ],
+      "LengthInSeconds": 214
+    },
+    "age": 30
+  }
+}
+ 
+----------------------------------------------------------------------------------------------------------------------------  
+10:Retrieve Nested Attributes Using Document Path Notation
+
+var params = {
+TableName: "student",
+Key: {
+"rollno": 2,
+"name": "pqr"
+},
+ProjectionExpression: "#a ,address.email[0]",
+ExpressionAttributeNames: {"#a": "age"}
+};
+dynamodb.getItem(params, function (err, data) {
+if (err)
+console.log(JSON.stringify(err, null, 2));
+else
+console.log(JSON.stringify(data, null, 2));
+});
+
+op:
+
+{
+  "Item": {
+    "address": {
+      "email": [
+        "pqr@gmail.com"
+      ]
+    },
+    "age": 30
+  }
+}
+
+------------------------------------------------------------------------------------------------------------------------------------
+11:Read Multiple Items Using BatchGetItem with projection expression
+
+var params = {
+RequestItems: {
+"student": {
+Keys: [
+{
+"rollno": 1,
+"name": "abc"
+},
+{
+"rollno": 2,
+"name": "pqr"
+},
+{
+"rollno": 3,
+"name": "aaa"
+},
+{
+"rollno": 4,
+"name": "bbb"
+}
+],
+ProjectionExpression: "address"
+}
+}
+};
+dynamodb.batchGetItem(params, function (err, data) {
+if (err)
+console.log(JSON.stringify(err, null, 2));
+else
+console.log(JSON.stringify(data, null, 2));
+});
+
+op:
+
+{
+  "Responses": {
+    "student": [
+      {
+        "address": {
+          "home": [
+            "xyz street",
+            "pune city",
+            "maharashtra"
+          ],
+          "contact": [
+            1234567890
+          ],
+          "email": [
+            "abc@gmail.com",
+            "abc@yahoo.in"
+          ],
+          "LengthInSeconds": 214
+        }
+      },
+      {
+        "address": {
+          "home": [
+            "ccc street",
+            "pune city",
+            "maharashtra"
+          ],
+          "contact": [
+            9239876540
+          ],
+          "email": [
+            "aaa@gmail.com",
+            "aaa@yahoo.in"
+          ],
+          "LengthInSeconds": 214
+        }
+      },
+      {
+        "address": {
+          "home": [
+            "baker street",
+            "mumabai city",
+            "maharashtra"
+          ],
+          "contact": [
+            9087654321
+          ],
+          "email": [
+            "bbb@gmail.com"
+          ],
+          "LengthInSeconds": 214
+        }
+      },
+      {
+        "address": {
+          "home": [
+            "street no-19",
+            "nagpur city",
+            "maharashtra"
+          ],
+          "contact": [
+            43536278928
+          ],
+          "email": [
+            "pqr@gmail.com",
+            "pqr@yahoo.in",
+            "pqr@org.com"
+          ],
+          "LengthInSeconds": 214
+        }
+      }
+    ]
+  },
+  "UnprocessedKeys": {}
+}
+
+-----------------------------------------------------------------------------------------------------------------------------
+12:Query Using a Partition Key
+
+var params = {
+TableName: "student",
+KeyConditionExpression: "rollno = :Rollno",
+ExpressionAttributeValues: {
+":Rollno": 3
+}
+};
+dynamodb.query(params, function(err, data) {
+if (err)
+console.log(JSON.stringify(err, null, 2));
+else
+console.log(JSON.stringify(data, null, 2));
+});
+
+op:
+
+=> 
+{
+  "Items": [
+    {
+      "rollno": 3,
+      "address": {
+        "home": [
+          "ccc street",
+          "pune city",
+          "maharashtra"
+        ],
+        "contact": [
+          9239876540
+        ],
+        "email": [
+          "aaa@gmail.com",
+          "aaa@yahoo.in"
+        ],
+        "LengthInSeconds": 214
+      },
+      "name": "aaa",
+      "age": 20,
+      "dob": "30-8-2000"
+    }
+  ],
+  "Count": 1,
+  "ScannedCount": 1
+}
+
+----------------------------------------------------------------------------------------------------------------------
+13:Filter Query Results
+
+var params = {
+TableName: "student",
+ProjectionExpression: "age, address.contact",
+KeyConditionExpression: "rollno = :Rollno",
+FilterExpression: "size(address.email) >= :howmany",
+ExpressionAttributeValues: {
+":Rollno": 3,
+":howmany": 3
+},
+};
+dynamodb.query(params, function(err, data) {
+if (err)
+console.log(JSON.stringify(err, null, 2));
+else
+console.log(JSON.stringify(data, null, 2));
+});
+
+op:
+{
+  "Items": [],
+  "Count": 0,
+  "ScannedCount": 1
+}
+
+
+2nd case:
+var params = {
+TableName: "student",
+ProjectionExpression: "age, address.contact",
+KeyConditionExpression: "rollno = :Rollno",
+FilterExpression: "size(address.email) >= :howmany",
+ExpressionAttributeValues: {
+":Rollno": 2,
+":howmany": 3
+},
+};
+dynamodb.query(params, function(err, data) {
+if (err)
+console.log(JSON.stringify(err, null, 2));
+else
+console.log(JSON.stringify(data, null, 2));
+});
+
+op:
+
+{
+  "Items": [
+    {
+      "address": {
+        "contact": [
+          43536278928
+        ]
+      },
+      "age": 30
+    }
+  ],
+  "Count": 1,
+  "ScannedCount": 1
+}
+
+
+-------------------------------------------------------------------------------------------------------------------------   
+14:Update an Item
+
+var params = {
+TableName: "student",
+Key: {
+"rollno":2,
+"name":"pqr"
+},
+UpdateExpression: "SET age = :label",
+ExpressionAttributeValues: {
+":label": 29
+},
+ReturnValues: "ALL_NEW"
+};
+dynamodb.updateItem(params, function(err, data) {
+if (err)
+console.log(JSON.stringify(err, null, 2));
+else
+console.log(JSON.stringify(data, null, 2));
+});
+
+op:
+
+{
+  "Attributes": {
+    "rollno": 2,
+    "address": {
+      "home": [
+        "street no-19",
+        "nagpur city",
+        "maharashtra"
+      ],
+      "contact": [
+        43536278928
+      ],
+      "email": [
+        "pqr@gmail.com",
+        "pqr@yahoo.in",
+        "pqr@org.com"
+      ],
+      "LengthInSeconds": 214
+    },
+    "name": "pqr",
+    "dob": "17-5-1989",
+    "age": 29
+  }
+}
+
+
+2nd case:
+var params = {
+TableName: "student",
+Key: {
+"rollno":2,
+"name":"pqr"
+},
+UpdateExpression: "SET address.email[0] = :label",
+ExpressionAttributeValues: {
+":label": "pppp@gmail.com"
+},
+ReturnValues: "ALL_NEW"
+};
+dynamodb.updateItem(params, function(err, data) {
+if (err)
+console.log(JSON.stringify(err, null, 2));
+else
+console.log(JSON.stringify(data, null, 2));
+});
+
+op:
+
+{
+  "Attributes": {
+    "rollno": 2,
+    "address": {
+      "home": [
+        "street no-19",
+        "nagpur city",
+        "maharashtra"
+      ],
+      "LengthInSeconds": 214,
+      "contact": [
+        43536278928
+      ],
+      "email": [
+        "pppp@gmail.com",
+        "pqr@yahoo.in",
+        "pqr@org.com"
+      ]
+    },
+    "name": "pqr",
+    "dob": "17-5-1989",
+    "age": 29
+  }
+}
+   
+---------------------------------------------------------------------------------------------------------------------------------
+15:creating index:
+
+var params = {
+    TableName: "student",
+    AttributeDefinitions:[
+    {AttributeName: "age", AttributeType: "N"},
+    ],
+    GlobalSecondaryIndexUpdates: [
+    {
+        Create: {
+        IndexName: "AGEIndex",
+        KeySchema: [
+        {AttributeName: "age", KeyType: "HASH"}, 
+        ],
+        Projection: {
+        "ProjectionType": "ALL"
+        },
+        ProvisionedThroughput: {
+        "ReadCapacityUnits": 1,"WriteCapacityUnits": 1
+        }
+        }
+    }
+    ]
+}
+
+dynamodb.updateTable(params, function(err, data) {
+if (err)
+console.log(JSON.stringify(err, null, 2));
+else
+console.log(JSON.stringify(data, null, 2));
+});
+
+op:
+
+=> 
+{
+  "TableDescription": {
+    "AttributeDefinitions": [
+      {
+        "AttributeName": "rollno",
+        "AttributeType": "N"
+      },
+      {
+        "AttributeName": "age",
+        "AttributeType": "N"
+      },
+      {
+        "AttributeName": "name",
+        "AttributeType": "S"
+      }
+    ],
+    "TableName": "student",
+    "KeySchema": [
+      {
+        "AttributeName": "rollno",
+        "KeyType": "HASH"
+      },
+      {
+        "AttributeName": "name",
+        "KeyType": "RANGE"
+      }
+    ],
+    "TableStatus": "ACTIVE",
+    "CreationDateTime": "2017-01-16T04:57:05.872Z",
+    "ProvisionedThroughput": {
+      "LastIncreaseDateTime": "1970-01-01T00:00:00.000Z",
+      "LastDecreaseDateTime": "1970-01-01T00:00:00.000Z",
+      "NumberOfDecreasesToday": 0,
+      "ReadCapacityUnits": 1,
+      "WriteCapacityUnits": 1
+    },
+    "TableSizeBytes": 459,
+    "ItemCount": 3,
+    "TableArn": "arn:aws:dynamodb:ddblocal:000000000000:table/student",
+    "GlobalSecondaryIndexes": [
+      {
+        "IndexName": "AGEIndex",
+        "KeySchema": [
+          {
+            "AttributeName": "age",
+            "KeyType": "HASH"
+          }
+        ],
+        "Projection": {
+          "ProjectionType": "ALL"
+        },
+        "IndexStatus": "CREATING",
+        "Backfilling": false,
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 1,
+          "WriteCapacityUnits": 1
+        },
+        "IndexArn": "arn:aws:dynamodb:ddblocal:000000000000:table/student/index/AGEIndex"
+      }
+    ]
+  }
+}
+
+----------------------------------------------------------------------------------------------------------------------------------
+16: Scan the Index
+
+var params = {
+TableName: "student",
+IndexName: "AGEIndex",
+ProjectionExpression: "age,rollno"
+};
+dynamodb.scan(params, function(err, data) {
+if (err)
+console.log(JSON.stringify(err, null, 2));
+else
+console.log(JSON.stringify(data, null, 2));
+});
+
+op:
+
+=> 
+{
+  "Items": [
+    {
+      "age": 20,
+      "rollno": 3
+    },
+    {
+      "age": 26,
+      "rollno": 1
+    },
+    {
+      "age": 29,
+      "rollno": 4
+    }
+  ],
+  "Count": 3,
+  "ScannedCount": 3
+}
+   
+----------------------------------------------------------------------------------------------------------------------------
+17:Delete an Item
+
+var params = {
+TableName: "student",
+Key: {
+rollno: 4,
+name: "bbb"
+}
+};
+dynamodb.deleteItem(params, function(err, data) {
+if (err)
+console.log(JSON.stringify(err, null, 2));
+else
+console.log(JSON.stringify(data, null, 2));
+});
+
+op:
+=> 
+{}
+
+--------------------------------------------------------------------------------------------------------------------------------------
+17: delete the table
+
+var params = {
+TableName: "student"
+};
+dynamodb.deleteTable(params, function(err, data) {
+if (err)
+console.log(JSON.stringify(err, null, 2));
+else
+console.log(JSON.stringify(data, null, 2));
+});
+
+op:
+{
+  "TableDescription": {
+    "AttributeDefinitions": [
+      {
+        "AttributeName": "rollno",
+        "AttributeType": "N"
+      },
+      {
+        "AttributeName": "age",
+        "AttributeType": "N"
+      },
+      {
+        "AttributeName": "name",
+        "AttributeType": "S"
+      }
+    ],
+    "TableName": "student",
+    "KeySchema": [
+      {
+        "AttributeName": "rollno",
+        "KeyType": "HASH"
+      },
+      {
+        "AttributeName": "name",
+        "KeyType": "RANGE"
+      }
+    ],
+    "TableStatus": "ACTIVE",
+    "CreationDateTime": "2017-01-16T04:57:05.872Z",
+    "ProvisionedThroughput": {
+      "LastIncreaseDateTime": "1970-01-01T00:00:00.000Z",
+      "LastDecreaseDateTime": "1970-01-01T00:00:00.000Z",
+      "NumberOfDecreasesToday": 0,
+      "ReadCapacityUnits": 1,
+      "WriteCapacityUnits": 1
+    },
+    "TableSizeBytes": 311,
+    "ItemCount": 2,
+    "TableArn": "arn:aws:dynamodb:ddblocal:000000000000:table/student",
+    "GlobalSecondaryIndexes": [
+      {
+        "IndexName": "AGEIndex",
+        "KeySchema": [
+          {
+            "AttributeName": "age",
+            "KeyType": "HASH"
+          }
+        ],
+        "Projection": {
+          "ProjectionType": "ALL"
+        },
+        "IndexStatus": "ACTIVE",
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 1,
+          "WriteCapacityUnits": 1
+        },
+        "IndexSizeBytes": 311,
+        "ItemCount": 2,
+        "IndexArn": "arn:aws:dynamodb:ddblocal:000000000000:table/student/index/AGEIndex"
+      }
+    ]
+  }
+}
+

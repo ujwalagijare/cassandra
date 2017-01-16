@@ -1,0 +1,94 @@
+exam@exam-ThinkCentre-M57e:~$ cassandra/bin/cqlsh
+Connected to Test Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 2.1.11 | CQL spec 3.2.1 | Native protocol v3]
+Use HELP for help.
+cqlsh> use mykeyspace;
+cqlsh:mykeyspace> select *from student;
+
+ roll | fname | lname
+------+-------+-------
+    1 |   aaa |   sss
+    2 |   bbb |   zzz
+    3 |   kkk |   hhh
+
+(3 rows)
+cqlsh:mykeyspace> exit
+exam@exam-ThinkCentre-M57e:~$ cassandra/bin/cqlshConnected to Test Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 2.1.11 | CQL spec 3.2.1 | Native protocol v3]
+Use HELP for help.
+cqlsh> create keyspace student_data with replication={'class':'SimpleStrategy','replication_factor':1};
+cqlsh> use student_data;
+cqlsh:student_data> create table student();
+SyntaxException: <ErrorMessage code=2000 [Syntax error in CQL query] message="line 1:21 no viable alternative at input ')' (create table student([)]...)">
+cqlsh:student_data> create table student(
+                ... sudeentid int primary key,
+                ... name text,
+                ... age int,
+                ... hobby text,
+                ... contact set<text>,
+                ... email list<text>,
+                ... address map<text,text>
+                ... );
+cqlsh:student_data> create table enroll( enrollid int, studentid int, testmark map<text,int>,primary key(enrollid,studentid));
+cqlsh:student_data> insert into student(sudeentid,name,age,hobby,contact,email,address)values(1,'ram',24,'reading',{'9876554578'},['ram@gmail.com'],{'hno':'27','locality':'dighi','city':'pune','state':'MH'});
+cqlsh:student_data> alter table student add dob text;
+cqlsh:student_data> describe student;
+
+CREATE TABLE student_data.student (
+    sudeentid int PRIMARY KEY,
+    address map<text, text>,
+    age int,
+    contact set<text>,
+    dob text,
+    email list<text>,
+    hobby text,
+    name text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+
+cqlsh:student_data> alter table student drop dob;
+cqlsh:student_data> truncate student;
+
+cqlsh:student_data> select * from student;
+
+ sudeentid | address | age | contact | email | hobby | name
+-----------+---------+-----+---------+-------+-------+------
+
+(0 rows)
+cqlsh:student_data> insert into student(sudeentid,name,age,hobby,contact,email,address)values(1,'ram',24,'reading',{'9876554578'},['ram@gmail.com'],{'hno':'27','locality':'dighi','city':'pune','state':'MH'});
+cqlsh:student_data> insert into student(sudeentid,name,age,hobby,contact,email,address)values(2,'puja',20,'drawing',{'9747655578'},['puja@gmail.com'],{'hno':'97','locality':'chinchwad','city':'pune','state':'MH'});
+cqlsh:student_data> select * from student;
+ sudeentid | address                                                               | age | contact        | email              | hobby   | name
+-----------+-----------------------------------------------------------------------+-----+----------------+--------------------+---------+------
+         1 |     {'city': 'pune', 'hno': '27', 'locality': 'dighi', 'state': 'MH'} |  24 | {'9876554578'} |  ['ram@gmail.com'] | reading |  ram
+         2 | {'city': 'pune', 'hno': '97', 'locality': 'chinchwad', 'state': 'MH'} |  20 | {'9747655578'} | ['puja@gmail.com'] | drawing | puja
+
+(2 rows)
+cqlsh:student_data> drop table student;
+cqlsh:student_data> create table student( sudeentid int primary key, name text, age int, hobby text, contact set<text>, email list<text>, address map<text,text> );
+
+cqlsh:student_data> create index student_age on student(age);
+cqlsh:student_data> select * from student;
+
+ sudeentid | address                                                               | age | contact        | email              | hobby   | name
+-----------+-----------------------------------------------------------------------+-----+----------------+--------------------+---------+------
+         1 |     {'city': 'pune', 'hno': '27', 'locality': 'dighi', 'state': 'MH'} |  24 | {'9876554578'} |  ['ram@gmail.com'] | reading |  ram
+         2 | {'city': 'pune', 'hno': '97', 'locality': 'chinchwad', 'state': 'MH'} |  20 | {'9747655578'} | ['puja@gmail.com'] | drawing | puja
+
+(2 rows)
+
+cqlsh:student_data> drop index student_age;
+
+
